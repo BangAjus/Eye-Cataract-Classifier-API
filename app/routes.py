@@ -38,7 +38,7 @@ def upload_image():
 
         return jsonify({
                         "status" : {
-                            "code":201,
+                            "code":200,
                             "message":"Success uploading the image!"
                         },
                                         
@@ -75,7 +75,7 @@ def upload_base64():
 
         return jsonify({
                         "status" : {
-                            "code":201,
+                            "code":200,
                             "message":"Success uploading the code!"
                         },
                                         
