@@ -47,6 +47,43 @@ def upload_image():
 
     return jsonify({"error": "Invalid file type"}), 400
 
+# Endpoint: Upload Image
+@api.route('/predict_base64', methods=['POST'])
+def upload_base64():
+    if 'data' not in request.json:
+        return jsonify({
+                        "status":{
+                            "code":400,
+                            "message":"error, no base64 data!"
+                        }
+                        }), 400
+
+    base64 = request.json['data']
+    if base64 == '':
+        return jsonify({"status":{
+                            "code":400,
+                            "message":"error, no base64 string!"
+                        }}), 400
+
+    convert_status = base64_conv(base64)
+    if convert_status:
+
+        filename = 'output_image.jpg'
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+
+        result = cataract_prediction(file_path)
+
+        return jsonify({
+                        "status" : {
+                            "code":201,
+                            "message":"Success uploading the code!"
+                        },
+                                        
+                        "data":result
+                    }), 200
+
+    return jsonify({"error": "Invalid base64 string"}), 400
+
 # Endpoint: Fetch Uploaded Image
 @api.route('/uploads/<filename>', methods=['GET'])
 def fetch_image(filename):

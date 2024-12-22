@@ -2,19 +2,27 @@ import cv2
 import numpy as np
 import tensorflow as tf
 import base64
+import os
+from app.config import UPLOAD_FOLDER
 
 model_path = 'C:\Projek Dajjal\Biomedics Project\Eye Cataract Classifier TF/results\model\model1_2024-12-20.h5'
 model = tf.keras.models.load_model(model_path)
 
 def base64_conv(string):
 
-    image_data = base64.b64decode(string)
+    try:
+        string = string.split(",")[1]
+        image_data = base64.b64decode(string)
 
-    output_path = "output_image.jpg"
-    with open(output_path, "wb") as file:
-        file.write(image_data)
+        output_path = os.path.join(UPLOAD_FOLDER, "output_image.jpg")
+        with open(output_path, "wb") as file:
+            file.write(image_data)
 
-    print(f"Image saved as {output_path}")
+        print(f"Image saved as {output_path}")
+        return True
+    
+    except:
+        return False
 
 def crop_pupil(img_path):
 
