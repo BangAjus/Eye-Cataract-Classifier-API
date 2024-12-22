@@ -34,8 +34,7 @@ def upload_image():
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         file.save(file_path)
 
-        image = crop_pupil(file_path)
-        result = cataract_prediction(image)
+        result = cataract_prediction(file_path)
 
         return jsonify({
                         "status" : {
@@ -67,6 +66,6 @@ def list_images():
                             "code":200,
                             "message":"success!"
                         },
-                        
+
                     "data":files
                     }), 200
