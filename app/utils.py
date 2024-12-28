@@ -5,8 +5,10 @@ import base64
 import os
 from app.config import UPLOAD_FOLDER
 
-model_path = 'C:\Projek Dajjal\Biomedics Project\Eye Cataract Classifier TF/results\model\model1_2024-12-20.h5'
-model = tf.keras.models.load_model(model_path)
+model1_path = 'C:\Projek Dajjal\Biomedics Project\Eye Cataract Classifier TF/results\model\model1_2024-12-20.h5'
+model2_path = 'C:\Projek Dajjal\Biomedics Project\Eye Cataract Classifier TF/results\model\model1_2024-12-02.h5'
+model1 = tf.keras.models.load_model(model1_path)
+model2 = tf.keras.models.load_model(model2_path)
 
 def base64_conv(string):
 
@@ -27,31 +29,41 @@ def base64_conv(string):
 def crop_pupil(img_path):
 
     image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-    image_blurred = cv2.GaussianBlur(image, (7, 7), 0)
+
+    try:
+        image_blurred = cv2.GaussianBlur(image, (7, 7), 0)
+        
+        _, thresh = cv2.threshold(image_blurred,
+                                50, 255, 
+                                cv2.THRESH_BINARY_INV)
+        
+        contours, _ = cv2.findContours(thresh,
+                                    cv2.RETR_EXTERNAL, 
+                                    cv2.CHAIN_APPROX_SIMPLE)
+        pupil_contour = max(contours, key=cv2.contourArea)
+
+        x, y, w, h = cv2.boundingRect(pupil_contour)
+
+        pupil_roi = image[y:y+h, x:x+w]
+        pupil_roi = cv2.resize(pupil_roi, (128, 128))
+
+        return pupil_roi, True
     
-    _, thresh = cv2.threshold(image_blurred,
-                              50, 255, 
-                              cv2.THRESH_BINARY_INV)
-    
-    contours, _ = cv2.findContours(thresh,
-                                   cv2.RETR_EXTERNAL, 
-                                   cv2.CHAIN_APPROX_SIMPLE)
-    pupil_contour = max(contours, key=cv2.contourArea)
-
-    x, y, w, h = cv2.boundingRect(pupil_contour)
-
-    pupil_roi = image[y:y+h, x:x+w]
-    pupil_roi = cv2.resize(pupil_roi, (128, 128))
-
-    return pupil_roi
+    except:
+        return image, False
 
 def cataract_prediction(image):
 
-    image = crop_pupil(image)
+    image, status = crop_pupil(image)
     image = image / 255.0  
     image = np.expand_dims(image, axis=0) 
     
-    predictions = model.predict(image)
+    if status == True:
+        predictions = model1.predict(image)
+
+    else:
+        predictions = model2.predict(image)
+
     class_names = ['katarak_immatur', 'katarak_matur', 'mata_normal']  
     predicted_class_index = np.argmax(predictions, axis=1)[0]
     predicted_class = class_names[predicted_class_index]
