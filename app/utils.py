@@ -5,8 +5,8 @@ import base64
 import os
 from app.config import UPLOAD_FOLDER
 
-model1_path = 'C:\Projek Dajjal\Biomedics Project\Eye Cataract Classifier TF/results\model\model1_2024-12-20.h5'
-model2_path = 'C:\Projek Dajjal\Biomedics Project\Eye Cataract Classifier TF/results\model\model1_2024-12-02.h5'
+model1_path = 'model1_2024-12-20.h5'
+model2_path = 'model1_2024-12-02.h5'
 model1 = tf.keras.models.load_model(model1_path)
 model2 = tf.keras.models.load_model(model2_path)
 
